@@ -22,7 +22,7 @@ export default function AiInsights({ data }: AiInsightsProps) {
         price: Number(p.price.toFixed(4)),
       }));
 
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-stock`;
+      const url = "/functions/v1/analyze-stock";
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

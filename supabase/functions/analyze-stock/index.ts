@@ -33,11 +33,16 @@ serve(async (req) => {
 
     const user = `Here is the stock data as an array of {date, price}:\n${JSON.stringify(body.points.slice(-366))}`;
 
+    const referer = req.headers.get("origin") ?? req.headers.get("referer") ?? "https://lovable.app";
+    const xTitle = req.headers.get("x-title") ?? "AI Stock Visualizer";
+
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": referer,
+        "X-Title": xTitle,
       },
       body: JSON.stringify({
         model: "openai/gpt-oss-20b:free",
