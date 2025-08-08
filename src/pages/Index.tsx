@@ -67,7 +67,7 @@ export default function Index() {
       {!hasData && (
         <section id="uploader" className="container pb-16">
           <UploadDropzone onParsed={handleParsed} />
-          <p className="text-center text-sm text-muted-foreground mt-4">Expected columns: Date, Price</p>
+          <p className="text-center text-sm text-muted-foreground mt-4">Expected columns: Date, Close</p>
         </section>
       )}
 

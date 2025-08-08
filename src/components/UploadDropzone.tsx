@@ -24,7 +24,7 @@ export function UploadDropzone({ onParsed }: UploadDropzoneProps) {
       if (!ACCEPTED.some((t) => file.type.includes("csv") || file.name.endsWith(".csv"))) {
         toast({
           title: "Invalid file type",
-          description: "Please upload a .csv file containing Date and Price columns.",
+          description: "Please upload a .csv file containing Date and Close columns.",
           variant: "destructive",
         } as any);
         return;
@@ -44,7 +44,7 @@ export function UploadDropzone({ onParsed }: UploadDropzoneProps) {
             const points: StockPoint[] = raw
               .map((row) => {
                 const d = row["Date"] ?? row["date"] ?? row["DATE"];
-                const p = row["Price"] ?? row["price"] ?? row["PRICE"];
+                const p = row["Close"] ?? row["close"] ?? row["CLOSE"] ?? row["Price"] ?? row["price"] ?? row["PRICE"];
                 const date = new Date(d);
                 const price = typeof p === "number" ? p : parseFloat(p);
                 if (!isFinite(price) || isNaN(date.getTime())) return null;
@@ -52,7 +52,7 @@ export function UploadDropzone({ onParsed }: UploadDropzoneProps) {
               })
               .filter(Boolean) as StockPoint[];
 
-            if (points.length === 0) throw new Error("Missing required columns: Date, Price");
+            if (points.length === 0) throw new Error("Missing required columns: Date, Close");
 
             onParsed(points);
             toast({ title: "CSV parsed", description: `Loaded ${points.length} rows.` } as any);
@@ -100,7 +100,7 @@ export function UploadDropzone({ onParsed }: UploadDropzoneProps) {
             onChange={(e) => onFiles(e.target.files)}
           />
         </div>
-        <p className="text-xs text-muted-foreground">Accepted format: .csv with Date, Price columns</p>
+        <p className="text-xs text-muted-foreground">Accepted format: .csv with Date, Close columns</p>
       </div>
     </Card>
   );
