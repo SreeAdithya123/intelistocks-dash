@@ -42,11 +42,11 @@ export default function StockChart({ data }: StockChartProps) {
           mode: "lines+markers",
           line: { color: "hsl(221 83% 53%)", width: 3, shape: "spline", smoothing: 1.2 },
           marker: { size: 5, color: markerColors },
-          hovertemplate: "%{x|%b %d}: ₹%{y:.2f}<extra></extra>",
+          hovertemplate: "%{x|%b %d, %Y}: ₹%{y:.2f}<extra></extra>",
         }]}
         layout={{
           margin: { l: 48, r: 24, t: 10, b: 48 },
-          xaxis: { title: "Date", type: "date", tickformat: "%b %d" },
+          xaxis: { title: "Date", type: "date", tickformat: "%b %d, %Y" },
           yaxis: { title: "Price", tickprefix: "₹", separatethousands: true, zeroline: false, gridcolor: "#E5E7EB" },
           paper_bgcolor: "rgba(0,0,0,0)",
           plot_bgcolor: "rgba(0,0,0,0)",
