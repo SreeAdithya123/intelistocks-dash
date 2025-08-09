@@ -9,14 +9,25 @@ type Point = { date: string; price: number };
 type Payload = { points: Point[] };
 
 serve(async (req) => {
-  if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
+  // CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  } as const;
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
 
   try {
     const body = (await req.json()) as Payload;
     if (!body?.points || !Array.isArray(body.points) || body.points.length === 0) {
       return new Response(JSON.stringify({ error: "Invalid payload" }), {
         status: 400,
-        headers: { "content-type": "application/json" },
+        headers: { ...corsHeaders, "content-type": "application/json" },
       });
     }
 
@@ -24,7 +35,7 @@ serve(async (req) => {
     if (!key) {
       return new Response(JSON.stringify({ error: "Missing OPENROUTER_API_KEY" }), {
         status: 400,
-        headers: { "content-type": "application/json" },
+        headers: { ...corsHeaders, "content-type": "application/json" },
       });
     }
 
@@ -59,7 +70,7 @@ serve(async (req) => {
       const errText = await resp.text();
       return new Response(JSON.stringify({ error: `OpenRouter error: ${errText}` }), {
         status: 500,
-        headers: { "content-type": "application/json" },
+        headers: { ...corsHeaders, "content-type": "application/json" },
       });
     }
 
@@ -67,13 +78,13 @@ serve(async (req) => {
     const insights: string = data?.choices?.[0]?.message?.content?.trim() ?? "No insights generated.";
 
     return new Response(JSON.stringify({ insights }), {
-      headers: { "content-type": "application/json" },
+      headers: { ...corsHeaders, "content-type": "application/json" },
       status: 200,
     });
   } catch (e) {
     return new Response(JSON.stringify({ error: (e as Error).message || "Unexpected error" }), {
       status: 500,
-      headers: { "content-type": "application/json" },
+      headers: { ...corsHeaders, "content-type": "application/json" },
     });
   }
 });

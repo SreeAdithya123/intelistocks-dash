@@ -1,1 +1,4 @@
 project_id = "vtiplptitfnvxxduykqb"
+
+[functions.analyze-stock]
+verify_jwt = false
