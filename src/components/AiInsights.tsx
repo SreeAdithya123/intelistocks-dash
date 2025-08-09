@@ -1,8 +1,10 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, RefreshCcw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type StockPoint = { date: Date; price: number };
 
@@ -17,29 +19,35 @@ export default function AiInsights({ data }: AiInsightsProps) {
   const fetchInsights = async () => {
     try {
       setLoading(true);
+      console.log("Fetching AI insights for", data.length, "data points");
+      
       const points = data.map((p) => ({
         date: p.date.toISOString().slice(0, 10),
         price: Number(p.price.toFixed(4)),
       }));
 
-      const url = "/functions/v1/analyze-stock";
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ points }),
+      console.log("Calling analyze-stock function with points:", points.slice(0, 5)); // Log first 5 points
+
+      const { data: result, error } = await supabase.functions.invoke('analyze-stock', {
+        body: { points }
       });
 
-      const contentType = res.headers.get("content-type") || "";
-      if (!res.ok) {
-        const msg = contentType.includes("application/json") ? (await res.json())?.error : await res.text();
-        throw new Error(msg || `Request failed (${res.status})`);
+      console.log("Function response:", { result, error });
+
+      if (error) {
+        throw new Error(error.message || "Failed to get AI insights");
       }
 
-      const json = contentType.includes("application/json") ? await res.json() : { insights: await res.text() };
-      setInsights(json.insights || "No insights returned.");
+      const insights = result?.insights || "No insights returned.";
+      console.log("Setting insights:", insights);
+      setInsights(insights);
     } catch (e: any) {
-      console.error(e);
-      toast({ title: "AI error", description: e.message || "Failed to get insights", variant: "destructive" } as any);
+      console.error("AI insights error:", e);
+      toast({ 
+        title: "AI error", 
+        description: e.message || "Failed to get insights", 
+        variant: "destructive" 
+      } as any);
       setInsights(
         "AI insights unavailable. Please configure OPENROUTER_API_KEY in your project settings and try again."
       );
@@ -49,7 +57,10 @@ export default function AiInsights({ data }: AiInsightsProps) {
   };
 
   useEffect(() => {
-    if (data.length) fetchInsights();
+    if (data.length) {
+      console.log("Data changed, fetching insights for", data.length, "points");
+      fetchInsights();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
